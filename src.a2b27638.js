@@ -25704,8 +25704,74 @@ if ("development" === 'production') {
 } else {
   module.exports = require('./cjs/react-dom.development.js');
 }
-},{"./cjs/react-dom.development.js":"node_modules/react-dom/cjs/react-dom.development.js"}],"src/images/galaxy.jpg":[function(require,module,exports) {
-module.exports = "/galaxy.100f543c.jpg";
+},{"./cjs/react-dom.development.js":"node_modules/react-dom/cjs/react-dom.development.js"}],"src/constants.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.DEAD_TEXT_OPTIONS = exports.ALIVE_TEXT_OPTIONS = exports.RESET_TEXT_OPTIONS = exports.MODES = exports.SNAP_DELAY = exports.SNAP_DURATION = exports.THANOS_DURATION = void 0;
+var THANOS_DURATION = 4000;
+exports.THANOS_DURATION = THANOS_DURATION;
+var SNAP_DURATION = 1000;
+exports.SNAP_DURATION = SNAP_DURATION;
+var SNAP_DELAY = THANOS_DURATION / 2;
+exports.SNAP_DELAY = SNAP_DELAY;
+var MODES = {
+  input: 'input',
+  alive: 'alive',
+  dead: 'dead'
+};
+exports.MODES = MODES;
+var RESET_TEXT_OPTIONS = ['Try another name', 'Test another\'s fate', 'Go again'];
+exports.RESET_TEXT_OPTIONS = RESET_TEXT_OPTIONS;
+var ALIVE_TEXT_OPTIONS = ['Congratulations, apparently you have been deemed worthy of suvival... we\'re not sure why...', 'Your life has been spared by the RNG Gods. Lucky...', 'You live to see another day, make sure you don\'t waste it playing video games...', 'Live long and prosper, until global warming kills us all anyways...', 'The universe has decided you will live, what a great time to start knitting...', 'Now with 50% less competition, you should ask that person on a date... unless they\'re...'];
+exports.ALIVE_TEXT_OPTIONS = ALIVE_TEXT_OPTIONS;
+var DEAD_TEXT_OPTIONS = ['Mr. Stark, I don\'t feel so good...', 'Apologies, you have been deemed unfit to carry on.', 'Unfortunately your journey ends here. Wave goodbye to those near you.', 'Im afraid you must die. Don\'t worry, half of the population is too, you\'re not special...', 'I hope you lived life to the fullest, cause it\'s over now...', 'Any last words? Might I suggest screaming "THIS IS BULLSHIT" at the top of your lungs...', 'Goodbye, auf Wiedersehen, adiós, arrivederci, ciao, au revoir, bon voyage, shalom...'];
+exports.DEAD_TEXT_OPTIONS = DEAD_TEXT_OPTIONS;
+},{}],"src/context.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = require("react");
+
+var FateDispatch = (0, _react.createContext)();
+var _default = FateDispatch;
+exports.default = _default;
+},{"react":"node_modules/react/index.js"}],"src/helpers/fateDecider.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var isAlive = function isAlive(name) {
+  var chars = name.split('');
+  var charTotal = chars.reduce(function (agg, curr) {
+    var total = agg + curr.charCodeAt();
+    return total;
+  }, 0);
+  return charTotal % 2 === 0;
+};
+
+var decideFate = function decideFate(e, name, dispatch) {
+  e.preventDefault();
+  var victim = name.trim();
+  if (!victim) return null;
+  return isAlive(victim) ? dispatch({
+    type: 'ALIVE'
+  }) : dispatch({
+    type: 'DEAD'
+  });
+};
+
+var _default = decideFate;
+exports.default = _default;
 },{}],"node_modules/parcel-bundler/src/builtins/bundle-url.js":[function(require,module,exports) {
 var bundleURL = null;
 
@@ -25786,6 +25852,7 @@ module.hot.dispose(reloadCSS);
 module.hot.accept(reloadCSS);
 module.exports = {
   "title": "_title_cc79d",
+  "fadeIn": "_fadeIn_cc79d",
   "form": "_form_cc79d",
   "input": "_input_cc79d",
   "snap": "_snap_cc79d"
@@ -25799,6 +25866,10 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
+
+var _context = _interopRequireDefault(require("../context"));
+
+var _fateDecider = _interopRequireDefault(require("../helpers/fateDecider"));
 
 var _Input = _interopRequireDefault(require("./Input.css"));
 
@@ -25814,26 +25885,9 @@ function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = 
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-var isAlive = function isAlive(name) {
-  var chars = name.split('');
-  var charTotal = chars.reduce(function (agg, curr) {
-    var total = agg + curr.charCodeAt();
-    return total;
-  }, 0);
-  return charTotal % 2 === 0;
-};
-
-var submit = function submit(e, name, setAlive, setDead) {
-  e.preventDefault();
-  var victim = name.trim();
-  if (!victim) return null;
-  return isAlive(victim) ? setAlive() : setDead();
-};
-
-var Input = function Input(_ref) {
-  var setAlive = _ref.setAlive,
-      setDead = _ref.setDead;
+var Input = function Input() {
   var inputEl = (0, _react.useRef)();
+  var dispatch = (0, _react.useContext)(_context.default);
 
   var _useState = (0, _react.useState)(''),
       _useState2 = _slicedToArray(_useState, 2),
@@ -25849,15 +25903,15 @@ var Input = function Input(_ref) {
   };
 
   var onSubmit = function onSubmit(e) {
-    return submit(e, name, setAlive, setDead);
+    return (0, _fateDecider.default)(e, name, dispatch);
   };
 
   (0, _react.useEffect)(function () {
     inputEl.current.focus();
   });
-  return _react.default.createElement(_react.Fragment, null, _react.default.createElement("h1", {
+  return _react.default.createElement(_react.default.Fragment, null, _react.default.createElement("h1", {
     className: _Input.default.title
-  }, "Do you survive Thanos?"), _react.default.createElement("form", {
+  }, "Will you survive Thanos?"), _react.default.createElement("form", {
     onSubmit: onSubmit,
     className: _Input.default.form
   }, _react.default.createElement("input", {
@@ -25876,159 +25930,11 @@ var Input = function Input(_ref) {
 
 var _default = Input;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","./Input.css":"src/components/Input.css"}],"node_modules/react-confetti/dist/react-confetti.min.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","../context":"src/context.js","../helpers/fateDecider":"src/helpers/fateDecider.js","./Input.css":"src/components/Input.css"}],"node_modules/react-confetti/dist/react-confetti.min.js":[function(require,module,exports) {
 var define;
 !function(t,e){"object"==typeof exports&&"object"==typeof module?module.exports=e(require("react")):"function"==typeof define&&define.amd?define(["react"],e):"object"==typeof exports?exports.ReactConfetti=e(require("react")):t.ReactConfetti=e(t.React)}("undefined"!=typeof self?self:this,function(t){return function(t){var e={};function n(i){if(e[i])return e[i].exports;var r=e[i]={i:i,l:!1,exports:{}};return t[i].call(r.exports,r,r.exports,n),r.l=!0,r.exports}return n.m=t,n.c=e,n.d=function(t,e,i){n.o(t,e)||Object.defineProperty(t,e,{enumerable:!0,get:i})},n.r=function(t){"undefined"!=typeof Symbol&&Symbol.toStringTag&&Object.defineProperty(t,Symbol.toStringTag,{value:"Module"}),Object.defineProperty(t,"__esModule",{value:!0})},n.t=function(t,e){if(1&e&&(t=n(t)),8&e)return t;if(4&e&&"object"==typeof t&&t&&t.__esModule)return t;var i=Object.create(null);if(n.r(i),Object.defineProperty(i,"default",{enumerable:!0,value:t}),2&e&&"string"!=typeof t)for(var r in t)n.d(i,r,function(e){return t[e]}.bind(null,r));return i},n.n=function(t){var e=t&&t.__esModule?function(){return t.default}:function(){return t};return n.d(e,"a",e),e},n.o=function(t,e){return Object.prototype.hasOwnProperty.call(t,e)},n.p="",n(n.s=2)}([function(e,n){e.exports=t},function(t,e,n){"use strict";var i={linear:function(t,e,n,i){return(n-e)*t/i+e},easeInQuad:function(t,e,n,i){return(n-e)*(t/=i)*t+e},easeOutQuad:function(t,e,n,i){return-(n-e)*(t/=i)*(t-2)+e},easeInOutQuad:function(t,e,n,i){var r=n-e;return(t/=i/2)<1?r/2*t*t+e:-r/2*(--t*(t-2)-1)+e},easeInCubic:function(t,e,n,i){return(n-e)*(t/=i)*t*t+e},easeOutCubic:function(t,e,n,i){return(n-e)*((t=t/i-1)*t*t+1)+e},easeInOutCubic:function(t,e,n,i){var r=n-e;return(t/=i/2)<1?r/2*t*t*t+e:r/2*((t-=2)*t*t+2)+e},easeInQuart:function(t,e,n,i){return(n-e)*(t/=i)*t*t*t+e},easeOutQuart:function(t,e,n,i){return-(n-e)*((t=t/i-1)*t*t*t-1)+e},easeInOutQuart:function(t,e,n,i){var r=n-e;return(t/=i/2)<1?r/2*t*t*t*t+e:-r/2*((t-=2)*t*t*t-2)+e},easeInQuint:function(t,e,n,i){return(n-e)*(t/=i)*t*t*t*t+e},easeOutQuint:function(t,e,n,i){return(n-e)*((t=t/i-1)*t*t*t*t+1)+e},easeInOutQuint:function(t,e,n,i){var r=n-e;return(t/=i/2)<1?r/2*t*t*t*t*t+e:r/2*((t-=2)*t*t*t*t+2)+e},easeInSine:function(t,e,n,i){var r=n-e;return-r*Math.cos(t/i*(Math.PI/2))+r+e},easeOutSine:function(t,e,n,i){return(n-e)*Math.sin(t/i*(Math.PI/2))+e},easeInOutSine:function(t,e,n,i){return-(n-e)/2*(Math.cos(Math.PI*t/i)-1)+e},easeInExpo:function(t,e,n,i){return 0==t?e:(n-e)*Math.pow(2,10*(t/i-1))+e},easeOutExpo:function(t,e,n,i){var r=n-e;return t==i?e+r:r*(1-Math.pow(2,-10*t/i))+e},easeInOutExpo:function(t,e,n,i){var r=n-e;return 0===t?e:t===i?e+r:(t/=i/2)<1?r/2*Math.pow(2,10*(t-1))+e:r/2*(2-Math.pow(2,-10*--t))+e},easeInCirc:function(t,e,n,i){return-(n-e)*(Math.sqrt(1-(t/=i)*t)-1)+e},easeOutCirc:function(t,e,n,i){return(n-e)*Math.sqrt(1-(t=t/i-1)*t)+e},easeInOutCirc:function(t,e,n,i){var r=n-e;return(t/=i/2)<1?-r/2*(Math.sqrt(1-t*t)-1)+e:r/2*(Math.sqrt(1-(t-=2)*t)+1)+e},easeInElastic:function(t,e,n,i){var r,o,a,s=n-e;return a=1.70158,0===t?e:1==(t/=i)?e+s:((o=0)||(o=.3*i),(r=s)<Math.abs(s)?(r=s,a=o/4):a=o/(2*Math.PI)*Math.asin(s/r),-r*Math.pow(2,10*(t-=1))*Math.sin((t*i-a)*(2*Math.PI)/o)+e)},easeOutElastic:function(t,e,n,i){var r,o,a,s=n-e;return a=1.70158,0===t?e:1==(t/=i)?e+s:((o=0)||(o=.3*i),(r=s)<Math.abs(s)?(r=s,a=o/4):a=o/(2*Math.PI)*Math.asin(s/r),r*Math.pow(2,-10*t)*Math.sin((t*i-a)*(2*Math.PI)/o)+s+e)},easeInOutElastic:function(t,e,n,i){var r,o,a,s=n-e;return a=1.70158,0===t?e:2==(t/=i/2)?e+s:((o=0)||(o=i*(.3*1.5)),(r=s)<Math.abs(s)?(r=s,a=o/4):a=o/(2*Math.PI)*Math.asin(s/r),t<1?r*Math.pow(2,10*(t-=1))*Math.sin((t*i-a)*(2*Math.PI)/o)*-.5+e:r*Math.pow(2,-10*(t-=1))*Math.sin((t*i-a)*(2*Math.PI)/o)*.5+s+e)},easeInBack:function(t,e,n,i,r){return void 0===r&&(r=1.70158),(n-e)*(t/=i)*t*((r+1)*t-r)+e},easeOutBack:function(t,e,n,i,r){return void 0===r&&(r=1.70158),(n-e)*((t=t/i-1)*t*((r+1)*t+r)+1)+e},easeInOutBack:function(t,e,n,i,r){var o=n-e;return void 0===r&&(r=1.70158),(t/=i/2)<1?o/2*(t*t*((1+(r*=1.525))*t-r))+e:o/2*((t-=2)*t*((1+(r*=1.525))*t+r)+2)+e},easeInBounce:function(t,e,n,r){var o=n-e;return o-i.easeOutBounce(r-t,0,o,r)+e},easeOutBounce:function(t,e,n,i){var r=n-e;return(t/=i)<1/2.75?r*(7.5625*t*t)+e:t<2/2.75?r*(7.5625*(t-=1.5/2.75)*t+.75)+e:t<2.5/2.75?r*(7.5625*(t-=2.25/2.75)*t+.9375)+e:r*(7.5625*(t-=2.625/2.75)*t+.984375)+e},easeInOutBounce:function(t,e,n,r){var o=n-e;return t<r/2?.5*i.easeInBounce(2*t,0,o,r)+e:.5*i.easeOutBounce(2*t-r,0,o,r)+.5*o+e}};t.exports=i},function(t,e,n){t.exports=n(3)},function(t,e,n){"use strict";n.r(e);var i,r,o=n(0),a=n.n(o),s=n(1),c=n.n(s);function u(t,e){return t+Math.random()*(e-t)}function h(t,e){for(var n=0;n<e.length;n++){var i=e[n];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(t,i.key,i)}}function f(t,e,n){return e in t?Object.defineProperty(t,e,{value:n,enumerable:!0,configurable:!0,writable:!0}):t[e]=n,t}!function(t){t[t.Circle=0]="Circle",t[t.Square=1]="Square",t[t.Strip=2]="Strip"}(i||(i={})),function(t){t[t.Positive=1]="Positive",t[t.Negative=-1]="Negative"}(r||(r={}));var l=function(){function t(e,n,i,o){!function(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}(this,t),f(this,"context",void 0),f(this,"radius",void 0),f(this,"x",void 0),f(this,"y",void 0),f(this,"w",void 0),f(this,"h",void 0),f(this,"vx",void 0),f(this,"vy",void 0),f(this,"shape",void 0),f(this,"angle",void 0),f(this,"angularSpin",void 0),f(this,"color",void 0),f(this,"rotateY",void 0),f(this,"rotationDirection",void 0),f(this,"getOptions",void 0),this.getOptions=n;var a,s,c=this.getOptions().colors;this.context=e,this.x=i,this.y=o,this.w=u(5,20),this.h=u(5,20),this.radius=u(5,10),this.vx=u(-4,4),this.vy=u(-10,-0),this.shape=(a=0,s=2,Math.floor(a+Math.random()*(s-a+1))),this.angle=u(0,360)*Math.PI/180,this.angularSpin=u(-.2,.2),this.color=c[Math.floor(Math.random()*c.length)],this.rotateY=u(0,1),this.rotationDirection=u(0,1)?r.Positive:r.Negative}var e,n,o;return e=t,(n=[{key:"update",value:function(){var t=this.getOptions(),e=t.gravity,n=t.wind,o=t.friction,a=t.opacity,s=t.drawShape;this.x+=this.vx,this.y+=this.vy,this.vy+=e,this.vx+=n,this.vx*=o,this.vy*=o,this.rotateY>=1&&this.rotationDirection===r.Positive?this.rotationDirection=r.Negative:this.rotateY<=-1&&this.rotationDirection===r.Negative&&(this.rotationDirection=r.Positive);var c=.1*this.rotationDirection;if(this.rotateY+=c,this.angle+=this.angularSpin,this.context.save(),this.context.translate(this.x,this.y),this.context.rotate(this.angle),this.context.scale(1,this.rotateY),this.context.rotate(this.angle),this.context.beginPath(),this.context.fillStyle=this.color,this.context.strokeStyle=this.color,this.context.globalAlpha=a,this.context.lineCap="round",this.context.lineWidth=2,s&&"function"==typeof s)s.call(this,this.context);else switch(this.shape){case i.Circle:this.context.beginPath(),this.context.arc(0,0,this.radius,0,2*Math.PI),this.context.fill();break;case i.Square:this.context.fillRect(-this.w/2,-this.h/2,this.w,this.h);break;case i.Strip:this.context.fillRect(-this.w/6,-this.h/2,this.w/3,this.h)}this.context.closePath(),this.context.restore()}}])&&h(e.prototype,n),o&&h(e,o),t}();function p(t,e,n){return e in t?Object.defineProperty(t,e,{value:n,enumerable:!0,configurable:!0,writable:!0}):t[e]=n,t}var v=function t(e,n){var i=this;!function(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}(this,t),p(this,"canvas",void 0),p(this,"context",void 0),p(this,"getOptions",void 0),p(this,"x",0),p(this,"y",0),p(this,"w",0),p(this,"h",0),p(this,"lastNumberOfPieces",0),p(this,"tweenInitTime",Date.now()),p(this,"particles",[]),p(this,"particlesGenerated",0),p(this,"removeParticleAt",function(t){i.particles.splice(t,1)}),p(this,"getParticle",function(){var t=u(i.x,i.w+i.x),e=u(i.y,i.h+i.y);return new l(i.context,i.getOptions,t,e)}),p(this,"animate",function(){var t=i.canvas,e=i.context,n=i.particlesGenerated,r=i.lastNumberOfPieces,o=i.getOptions(),a=o.run,s=o.recycle,c=o.numberOfPieces,u=o.debug,h=o.tweenFunction,f=o.tweenDuration;if(!a)return!1;var l=i.particles.length,p=s?l:n,v=Date.now();if(p<c){r!==c&&(i.tweenInitTime=v,i.lastNumberOfPieces=c);for(var y=i.tweenInitTime,d=h(v-y>f?f:Math.max(0,v-y),p,c,f),b=Math.round(d-p),g=0;g<b;g++)i.particles.push(i.getParticle());i.particlesGenerated+=b}return u&&(e.font="12px sans-serif",e.fillStyle="#333",e.textAlign="right",e.fillText("Particles: ".concat(l),t.width-10,t.height-20)),i.particles.forEach(function(e,n){e.update(),(e.y>t.height||e.y<-100||e.x>t.width+100||e.x<-100)&&(s&&p<=c?i.particles[n]=i.getParticle():i.removeParticleAt(n))}),l>0||p<c}),this.canvas=e;var r=this.canvas.getContext("2d");if(!r)throw new Error("Could not get canvas context");this.context=r,this.getOptions=n};function y(t,e){for(var n=0;n<e.length;n++){var i=e[n];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(t,i.key,i)}}function d(t,e,n){return e in t?Object.defineProperty(t,e,{value:n,enumerable:!0,configurable:!0,writable:!0}):t[e]=n,t}var b={width:"undefined"!=typeof window?window.innerWidth:300,height:"undefined"!=typeof window?window.innerHeight:200,numberOfPieces:200,friction:.99,wind:0,gravity:.1,colors:["#f44336","#e91e63","#9c27b0","#673ab7","#3f51b5","#2196f3","#03a9f4","#00bcd4","#009688","#4CAF50","#8BC34A","#CDDC39","#FFEB3B","#FFC107","#FF9800","#FF5722","#795548"],opacity:1,debug:!1,tweenFunction:c.a.easeInOutQuad,tweenDuration:5e3,recycle:!0,run:!0},g=function(){function t(e,n){var i=this;!function(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}(this,t),d(this,"canvas",void 0),d(this,"context",void 0),d(this,"_options",void 0),d(this,"generator",void 0),d(this,"setOptionsWithDefaults",function(t){var e={confettiSource:{x:0,y:0,w:i.canvas.width,h:0}};i._options=function(t){for(var e=1;e<arguments.length;e++){var n=null!=arguments[e]?arguments[e]:{},i=Object.keys(n);"function"==typeof Object.getOwnPropertySymbols&&(i=i.concat(Object.getOwnPropertySymbols(n).filter(function(t){return Object.getOwnPropertyDescriptor(n,t).enumerable}))),i.forEach(function(e){d(t,e,n[e])})}return t}({},e,b,t),Object.assign(i,t.confettiSource)}),d(this,"update",function(){var t=i.options.run,e=i.canvas,n=i.context;t&&(n.fillStyle="white",n.clearRect(0,0,e.width,e.height)),i.generator.animate()?requestAnimationFrame(i.update):i._options.run=!1}),this.canvas=e;var r=this.canvas.getContext("2d");if(!r)throw new Error("Could not get canvas context");this.context=r,this.generator=new v(this.canvas,function(){return i.options}),this.options=n,this.update()}var e,n,i;return e=t,(n=[{key:"options",get:function(){return this._options},set:function(t){var e=this._options&&this._options.run;this.setOptionsWithDefaults(t),this.generator&&Object.assign(this.generator,this.options.confettiSource),"boolean"==typeof t.run&&t.run&&!1===e&&this.update()}}])&&y(e.prototype,n),i&&y(e,i),t}();function w(t){return(w="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(t){return typeof t}:function(t){return t&&"function"==typeof Symbol&&t.constructor===Symbol&&t!==Symbol.prototype?"symbol":typeof t})(t)}function O(t){return function(t){if(Array.isArray(t)){for(var e=0,n=new Array(t.length);e<t.length;e++)n[e]=t[e];return n}}(t)||function(t){if(Symbol.iterator in Object(t)||"[object Arguments]"===Object.prototype.toString.call(t))return Array.from(t)}(t)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance")}()}function x(){return(x=Object.assign||function(t){for(var e=1;e<arguments.length;e++){var n=arguments[e];for(var i in n)Object.prototype.hasOwnProperty.call(n,i)&&(t[i]=n[i])}return t}).apply(this,arguments)}function m(t){for(var e=1;e<arguments.length;e++){var n=null!=arguments[e]?arguments[e]:{},i=Object.keys(n);"function"==typeof Object.getOwnPropertySymbols&&(i=i.concat(Object.getOwnPropertySymbols(n).filter(function(t){return Object.getOwnPropertyDescriptor(n,t).enumerable}))),i.forEach(function(e){C(t,e,n[e])})}return t}function P(t,e){return function(t){if(Array.isArray(t))return t}(t)||function(t,e){var n=[],i=!0,r=!1,o=void 0;try{for(var a,s=t[Symbol.iterator]();!(i=(a=s.next()).done)&&(n.push(a.value),!e||n.length!==e);i=!0);}catch(t){r=!0,o=t}finally{try{i||null==s.return||s.return()}finally{if(r)throw o}}return n}(t,e)||function(){throw new TypeError("Invalid attempt to destructure non-iterable instance")}()}function M(t,e){for(var n=0;n<e.length;n++){var i=e[n];i.enumerable=i.enumerable||!1,i.configurable=!0,"value"in i&&(i.writable=!0),Object.defineProperty(t,i.key,i)}}function I(t){return(I=Object.setPrototypeOf?Object.getPrototypeOf:function(t){return t.__proto__||Object.getPrototypeOf(t)})(t)}function S(t){if(void 0===t)throw new ReferenceError("this hasn't been initialised - super() hasn't been called");return t}function j(t,e){return(j=Object.setPrototypeOf||function(t,e){return t.__proto__=e,t})(t,e)}function C(t,e,n){return e in t?Object.defineProperty(t,e,{value:n,enumerable:!0,configurable:!0,writable:!0}):t[e]=n,t}n.d(e,"ReactConfetti",function(){return E});var E=function(t){function e(){var t,n,i,r;!function(t,e){if(!(t instanceof e))throw new TypeError("Cannot call a class as a function")}(this,e);for(var o=arguments.length,s=new Array(o),c=0;c<o;c++)s[c]=arguments[c];return i=this,n=!(r=(t=I(e)).call.apply(t,[this].concat(s)))||"object"!==w(r)&&"function"!=typeof r?S(i):r,C(S(n),"canvas",a.a.createRef()),C(S(n),"confetti",void 0),n}var n,i,r;return function(t,e){if("function"!=typeof e&&null!==e)throw new TypeError("Super expression must either be null or a function");t.prototype=Object.create(e&&e.prototype,{constructor:{value:t,writable:!0,configurable:!0}}),e&&j(t,e)}(e,o["Component"]),n=e,(i=[{key:"componentDidMount",value:function(){if(this.canvas.current){var t=_(this.props)[0];this.confetti=new g(this.canvas.current,t)}}},{key:"componentWillReceiveProps",value:function(t){var e=_(t)[0];this.confetti&&(this.confetti.options=e)}},{key:"render",value:function(){var t=P(_(this.props),2),e=t[0],n=t[1],i=m({zIndex:2,position:"absolute",top:0,left:0,bottom:0,right:0},n.style);return a.a.createElement("canvas",x({width:e.width,height:e.height,ref:this.canvas},n,{style:i}))}}])&&M(n.prototype,i),r&&M(n,r),e}();function _(t){var e={},n={},i=[].concat(O(Object.keys(b)),["confettiSource","drawShape"]);for(var r in t){var o=t[r];i.includes(r)?e[r]=o:n[r]=o}return[e,n]}C(E,"defaultProps",m({},b));e.default=E}]).default});
 
-},{"react":"node_modules/react/index.js"}],"src/timings.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.SNAP_DURATION = exports.SNAP_DELAY = exports.THANOS_DURATION = void 0;
-var THANOS_DURATION = 4000;
-exports.THANOS_DURATION = THANOS_DURATION;
-var SNAP_DELAY = THANOS_DURATION / 2;
-exports.SNAP_DELAY = SNAP_DELAY;
-var SNAP_DURATION = 1000;
-exports.SNAP_DURATION = SNAP_DURATION;
-},{}],"src/components/Reset.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
-
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-module.exports = {
-  "reset": "_reset_8c2fb"
-};
-},{"_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/components/Reset.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _Reset = _interopRequireDefault(require("./Reset.css"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Reset = function Reset(_ref) {
-  var reset = _ref.reset;
-  return _react.default.createElement("button", {
-    type: "button",
-    onClick: reset,
-    className: _Reset.default.reset
-  }, "Try another name...");
-};
-
-var _default = Reset;
-exports.default = _default;
-},{"react":"node_modules/react/index.js","./Reset.css":"src/components/Reset.css"}],"src/components/Status.css":[function(require,module,exports) {
-var reloadCSS = require('_css_loader');
-
-module.hot.dispose(reloadCSS);
-module.hot.accept(reloadCSS);
-module.exports = {
-  "wrapper": "_wrapper_6a4aa",
-  "status": "_status_6a4aa",
-  "text": "_text_6a4aa"
-};
-},{"../variables":"src/variables.css","_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/components/Status.js":[function(require,module,exports) {
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _react = _interopRequireDefault(require("react"));
-
-var _Reset = _interopRequireDefault(require("./Reset"));
-
-var _Status = _interopRequireDefault(require("./Status.css"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var Status = function Status(_ref) {
-  var children = _ref.children,
-      title = _ref.title,
-      reset = _ref.reset;
-  return _react.default.createElement("div", {
-    className: _Status.default.wrapper
-  }, _react.default.createElement("span", {
-    className: _Status.default.status
-  }, title), _react.default.createElement("p", {
-    className: _Status.default.text
-  }, children), _react.default.createElement(_Reset.default, {
-    reset: reset
-  }));
-};
-
-var _default = Status;
-exports.default = _default;
-},{"react":"node_modules/react/index.js","./Reset":"src/components/Reset.js","./Status.css":"src/components/Status.css"}],"src/components/Alive.js":[function(require,module,exports) {
-var global = arguments[3];
-"use strict";
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = void 0;
-
-var _react = _interopRequireWildcard(require("react"));
-
-var _reactConfetti = _interopRequireDefault(require("react-confetti"));
-
-var _timings = require("../timings");
-
-var _Status = _interopRequireDefault(require("./Status"));
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-var Alive = function Alive(_ref) {
-  var reset = _ref.reset;
-
-  var _useState = (0, _react.useState)(false),
-      _useState2 = _slicedToArray(_useState, 2),
-      show = _useState2[0],
-      setShow = _useState2[1];
-
-  (0, _react.useEffect)(function () {
-    setTimeout(function () {
-      return setShow(true);
-    }, _timings.THANOS_DURATION);
-  });
-
-  var _global$document$docu = global.document.documentElement.getBoundingClientRect(),
-      width = _global$document$docu.width,
-      height = _global$document$docu.height;
-
-  return show && _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactConfetti.default, {
-    numberOfPieces: 300,
-    width: width,
-    height: height
-  }), _react.default.createElement(_Status.default, {
-    title: "ALIVE!",
-    reset: reset
-  }, "Congratulations, apparently you have been deemed worthy of suvival... we're not sure why..."));
-};
-
-var _default = Alive;
-exports.default = _default;
-},{"react":"node_modules/react/index.js","react-confetti":"node_modules/react-confetti/dist/react-confetti.min.js","../timings":"src/timings.js","./Status":"src/components/Status.js"}],"node_modules/lodash/_baseRandom.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js"}],"node_modules/lodash/_baseRandom.js":[function(require,module,exports) {
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeFloor = Math.floor,
     nativeRandom = Math.random;
@@ -26048,44 +25954,88 @@ function baseRandom(lower, upper) {
 
 module.exports = baseRandom;
 
-},{}],"node_modules/lodash/eq.js":[function(require,module,exports) {
+},{}],"node_modules/lodash/_arraySample.js":[function(require,module,exports) {
+var baseRandom = require('./_baseRandom');
+
 /**
- * Performs a
- * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
- * comparison between two values to determine if they are equivalent.
+ * A specialized version of `_.sample` for arrays.
  *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to compare.
- * @param {*} other The other value to compare.
- * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
- * @example
- *
- * var object = { 'a': 1 };
- * var other = { 'a': 1 };
- *
- * _.eq(object, object);
- * // => true
- *
- * _.eq(object, other);
- * // => false
- *
- * _.eq('a', 'a');
- * // => true
- *
- * _.eq('a', Object('a'));
- * // => false
- *
- * _.eq(NaN, NaN);
- * // => true
+ * @private
+ * @param {Array} array The array to sample.
+ * @returns {*} Returns the random element.
  */
-function eq(value, other) {
-  return value === other || (value !== value && other !== other);
+function arraySample(array) {
+  var length = array.length;
+  return length ? array[baseRandom(0, length - 1)] : undefined;
 }
 
-module.exports = eq;
+module.exports = arraySample;
+
+},{"./_baseRandom":"node_modules/lodash/_baseRandom.js"}],"node_modules/lodash/_arrayMap.js":[function(require,module,exports) {
+/**
+ * A specialized version of `_.map` for arrays without support for iteratee
+ * shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the new mapped array.
+ */
+function arrayMap(array, iteratee) {
+  var index = -1,
+      length = array == null ? 0 : array.length,
+      result = Array(length);
+
+  while (++index < length) {
+    result[index] = iteratee(array[index], index, array);
+  }
+  return result;
+}
+
+module.exports = arrayMap;
+
+},{}],"node_modules/lodash/_baseValues.js":[function(require,module,exports) {
+var arrayMap = require('./_arrayMap');
+
+/**
+ * The base implementation of `_.values` and `_.valuesIn` which creates an
+ * array of `object` property values corresponding to the property names
+ * of `props`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array} props The property names to get values for.
+ * @returns {Object} Returns the array of property values.
+ */
+function baseValues(object, props) {
+  return arrayMap(props, function(key) {
+    return object[key];
+  });
+}
+
+module.exports = baseValues;
+
+},{"./_arrayMap":"node_modules/lodash/_arrayMap.js"}],"node_modules/lodash/_baseTimes.js":[function(require,module,exports) {
+/**
+ * The base implementation of `_.times` without support for iteratee shorthands
+ * or max array length checks.
+ *
+ * @private
+ * @param {number} n The number of times to invoke `iteratee`.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the array of results.
+ */
+function baseTimes(n, iteratee) {
+  var index = -1,
+      result = Array(n);
+
+  while (++index < n) {
+    result[index] = iteratee(index);
+  }
+  return result;
+}
+
+module.exports = baseTimes;
 
 },{}],"node_modules/lodash/_freeGlobal.js":[function(require,module,exports) {
 var global = arguments[3];
@@ -26215,7 +26165,516 @@ function baseGetTag(value) {
 
 module.exports = baseGetTag;
 
-},{"./_Symbol":"node_modules/lodash/_Symbol.js","./_getRawTag":"node_modules/lodash/_getRawTag.js","./_objectToString":"node_modules/lodash/_objectToString.js"}],"node_modules/lodash/isObject.js":[function(require,module,exports) {
+},{"./_Symbol":"node_modules/lodash/_Symbol.js","./_getRawTag":"node_modules/lodash/_getRawTag.js","./_objectToString":"node_modules/lodash/_objectToString.js"}],"node_modules/lodash/isObjectLike.js":[function(require,module,exports) {
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return value != null && typeof value == 'object';
+}
+
+module.exports = isObjectLike;
+
+},{}],"node_modules/lodash/_baseIsArguments.js":[function(require,module,exports) {
+var baseGetTag = require('./_baseGetTag'),
+    isObjectLike = require('./isObjectLike');
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]';
+
+/**
+ * The base implementation of `_.isArguments`.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+ */
+function baseIsArguments(value) {
+  return isObjectLike(value) && baseGetTag(value) == argsTag;
+}
+
+module.exports = baseIsArguments;
+
+},{"./_baseGetTag":"node_modules/lodash/_baseGetTag.js","./isObjectLike":"node_modules/lodash/isObjectLike.js"}],"node_modules/lodash/isArguments.js":[function(require,module,exports) {
+var baseIsArguments = require('./_baseIsArguments'),
+    isObjectLike = require('./isObjectLike');
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/** Built-in value references. */
+var propertyIsEnumerable = objectProto.propertyIsEnumerable;
+
+/**
+ * Checks if `value` is likely an `arguments` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArguments(function() { return arguments; }());
+ * // => true
+ *
+ * _.isArguments([1, 2, 3]);
+ * // => false
+ */
+var isArguments = baseIsArguments(function() { return arguments; }()) ? baseIsArguments : function(value) {
+  return isObjectLike(value) && hasOwnProperty.call(value, 'callee') &&
+    !propertyIsEnumerable.call(value, 'callee');
+};
+
+module.exports = isArguments;
+
+},{"./_baseIsArguments":"node_modules/lodash/_baseIsArguments.js","./isObjectLike":"node_modules/lodash/isObjectLike.js"}],"node_modules/lodash/isArray.js":[function(require,module,exports) {
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
+ */
+var isArray = Array.isArray;
+
+module.exports = isArray;
+
+},{}],"node_modules/lodash/stubFalse.js":[function(require,module,exports) {
+/**
+ * This method returns `false`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.13.0
+ * @category Util
+ * @returns {boolean} Returns `false`.
+ * @example
+ *
+ * _.times(2, _.stubFalse);
+ * // => [false, false]
+ */
+function stubFalse() {
+  return false;
+}
+
+module.exports = stubFalse;
+
+},{}],"node_modules/lodash/isBuffer.js":[function(require,module,exports) {
+
+var root = require('./_root'),
+    stubFalse = require('./stubFalse');
+
+/** Detect free variable `exports`. */
+var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
+
+/** Detect free variable `module`. */
+var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
+
+/** Detect the popular CommonJS extension `module.exports`. */
+var moduleExports = freeModule && freeModule.exports === freeExports;
+
+/** Built-in value references. */
+var Buffer = moduleExports ? root.Buffer : undefined;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
+
+/**
+ * Checks if `value` is a buffer.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.3.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
+ * @example
+ *
+ * _.isBuffer(new Buffer(2));
+ * // => true
+ *
+ * _.isBuffer(new Uint8Array(2));
+ * // => false
+ */
+var isBuffer = nativeIsBuffer || stubFalse;
+
+module.exports = isBuffer;
+
+},{"./_root":"node_modules/lodash/_root.js","./stubFalse":"node_modules/lodash/stubFalse.js"}],"node_modules/lodash/_isIndex.js":[function(require,module,exports) {
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/** Used to detect unsigned integer values. */
+var reIsUint = /^(?:0|[1-9]\d*)$/;
+
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+function isIndex(value, length) {
+  var type = typeof value;
+  length = length == null ? MAX_SAFE_INTEGER : length;
+
+  return !!length &&
+    (type == 'number' ||
+      (type != 'symbol' && reIsUint.test(value))) &&
+        (value > -1 && value % 1 == 0 && value < length);
+}
+
+module.exports = isIndex;
+
+},{}],"node_modules/lodash/isLength.js":[function(require,module,exports) {
+/** Used as references for various `Number` constants. */
+var MAX_SAFE_INTEGER = 9007199254740991;
+
+/**
+ * Checks if `value` is a valid array-like length.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
+ * @example
+ *
+ * _.isLength(3);
+ * // => true
+ *
+ * _.isLength(Number.MIN_VALUE);
+ * // => false
+ *
+ * _.isLength(Infinity);
+ * // => false
+ *
+ * _.isLength('3');
+ * // => false
+ */
+function isLength(value) {
+  return typeof value == 'number' &&
+    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
+}
+
+module.exports = isLength;
+
+},{}],"node_modules/lodash/_baseIsTypedArray.js":[function(require,module,exports) {
+var baseGetTag = require('./_baseGetTag'),
+    isLength = require('./isLength'),
+    isObjectLike = require('./isObjectLike');
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]',
+    arrayTag = '[object Array]',
+    boolTag = '[object Boolean]',
+    dateTag = '[object Date]',
+    errorTag = '[object Error]',
+    funcTag = '[object Function]',
+    mapTag = '[object Map]',
+    numberTag = '[object Number]',
+    objectTag = '[object Object]',
+    regexpTag = '[object RegExp]',
+    setTag = '[object Set]',
+    stringTag = '[object String]',
+    weakMapTag = '[object WeakMap]';
+
+var arrayBufferTag = '[object ArrayBuffer]',
+    dataViewTag = '[object DataView]',
+    float32Tag = '[object Float32Array]',
+    float64Tag = '[object Float64Array]',
+    int8Tag = '[object Int8Array]',
+    int16Tag = '[object Int16Array]',
+    int32Tag = '[object Int32Array]',
+    uint8Tag = '[object Uint8Array]',
+    uint8ClampedTag = '[object Uint8ClampedArray]',
+    uint16Tag = '[object Uint16Array]',
+    uint32Tag = '[object Uint32Array]';
+
+/** Used to identify `toStringTag` values of typed arrays. */
+var typedArrayTags = {};
+typedArrayTags[float32Tag] = typedArrayTags[float64Tag] =
+typedArrayTags[int8Tag] = typedArrayTags[int16Tag] =
+typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] =
+typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
+typedArrayTags[uint32Tag] = true;
+typedArrayTags[argsTag] = typedArrayTags[arrayTag] =
+typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
+typedArrayTags[dataViewTag] = typedArrayTags[dateTag] =
+typedArrayTags[errorTag] = typedArrayTags[funcTag] =
+typedArrayTags[mapTag] = typedArrayTags[numberTag] =
+typedArrayTags[objectTag] = typedArrayTags[regexpTag] =
+typedArrayTags[setTag] = typedArrayTags[stringTag] =
+typedArrayTags[weakMapTag] = false;
+
+/**
+ * The base implementation of `_.isTypedArray` without Node.js optimizations.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
+ */
+function baseIsTypedArray(value) {
+  return isObjectLike(value) &&
+    isLength(value.length) && !!typedArrayTags[baseGetTag(value)];
+}
+
+module.exports = baseIsTypedArray;
+
+},{"./_baseGetTag":"node_modules/lodash/_baseGetTag.js","./isLength":"node_modules/lodash/isLength.js","./isObjectLike":"node_modules/lodash/isObjectLike.js"}],"node_modules/lodash/_baseUnary.js":[function(require,module,exports) {
+/**
+ * The base implementation of `_.unary` without support for storing metadata.
+ *
+ * @private
+ * @param {Function} func The function to cap arguments for.
+ * @returns {Function} Returns the new capped function.
+ */
+function baseUnary(func) {
+  return function(value) {
+    return func(value);
+  };
+}
+
+module.exports = baseUnary;
+
+},{}],"node_modules/lodash/_nodeUtil.js":[function(require,module,exports) {
+var freeGlobal = require('./_freeGlobal');
+
+/** Detect free variable `exports`. */
+var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
+
+/** Detect free variable `module`. */
+var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
+
+/** Detect the popular CommonJS extension `module.exports`. */
+var moduleExports = freeModule && freeModule.exports === freeExports;
+
+/** Detect free variable `process` from Node.js. */
+var freeProcess = moduleExports && freeGlobal.process;
+
+/** Used to access faster Node.js helpers. */
+var nodeUtil = (function() {
+  try {
+    // Use `util.types` for Node.js 10+.
+    var types = freeModule && freeModule.require && freeModule.require('util').types;
+
+    if (types) {
+      return types;
+    }
+
+    // Legacy `process.binding('util')` for Node.js < 10.
+    return freeProcess && freeProcess.binding && freeProcess.binding('util');
+  } catch (e) {}
+}());
+
+module.exports = nodeUtil;
+
+},{"./_freeGlobal":"node_modules/lodash/_freeGlobal.js"}],"node_modules/lodash/isTypedArray.js":[function(require,module,exports) {
+var baseIsTypedArray = require('./_baseIsTypedArray'),
+    baseUnary = require('./_baseUnary'),
+    nodeUtil = require('./_nodeUtil');
+
+/* Node.js helper references. */
+var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
+
+/**
+ * Checks if `value` is classified as a typed array.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
+ * @example
+ *
+ * _.isTypedArray(new Uint8Array);
+ * // => true
+ *
+ * _.isTypedArray([]);
+ * // => false
+ */
+var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
+
+module.exports = isTypedArray;
+
+},{"./_baseIsTypedArray":"node_modules/lodash/_baseIsTypedArray.js","./_baseUnary":"node_modules/lodash/_baseUnary.js","./_nodeUtil":"node_modules/lodash/_nodeUtil.js"}],"node_modules/lodash/_arrayLikeKeys.js":[function(require,module,exports) {
+var baseTimes = require('./_baseTimes'),
+    isArguments = require('./isArguments'),
+    isArray = require('./isArray'),
+    isBuffer = require('./isBuffer'),
+    isIndex = require('./_isIndex'),
+    isTypedArray = require('./isTypedArray');
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Creates an array of the enumerable property names of the array-like `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @param {boolean} inherited Specify returning inherited property names.
+ * @returns {Array} Returns the array of property names.
+ */
+function arrayLikeKeys(value, inherited) {
+  var isArr = isArray(value),
+      isArg = !isArr && isArguments(value),
+      isBuff = !isArr && !isArg && isBuffer(value),
+      isType = !isArr && !isArg && !isBuff && isTypedArray(value),
+      skipIndexes = isArr || isArg || isBuff || isType,
+      result = skipIndexes ? baseTimes(value.length, String) : [],
+      length = result.length;
+
+  for (var key in value) {
+    if ((inherited || hasOwnProperty.call(value, key)) &&
+        !(skipIndexes && (
+           // Safari 9 has enumerable `arguments.length` in strict mode.
+           key == 'length' ||
+           // Node.js 0.10 has enumerable non-index properties on buffers.
+           (isBuff && (key == 'offset' || key == 'parent')) ||
+           // PhantomJS 2 has enumerable non-index properties on typed arrays.
+           (isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset')) ||
+           // Skip index properties.
+           isIndex(key, length)
+        ))) {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+module.exports = arrayLikeKeys;
+
+},{"./_baseTimes":"node_modules/lodash/_baseTimes.js","./isArguments":"node_modules/lodash/isArguments.js","./isArray":"node_modules/lodash/isArray.js","./isBuffer":"node_modules/lodash/isBuffer.js","./_isIndex":"node_modules/lodash/_isIndex.js","./isTypedArray":"node_modules/lodash/isTypedArray.js"}],"node_modules/lodash/_isPrototype.js":[function(require,module,exports) {
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Checks if `value` is likely a prototype object.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
+ */
+function isPrototype(value) {
+  var Ctor = value && value.constructor,
+      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
+
+  return value === proto;
+}
+
+module.exports = isPrototype;
+
+},{}],"node_modules/lodash/_overArg.js":[function(require,module,exports) {
+/**
+ * Creates a unary function that invokes `func` with its argument transformed.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {Function} transform The argument transform.
+ * @returns {Function} Returns the new function.
+ */
+function overArg(func, transform) {
+  return function(arg) {
+    return func(transform(arg));
+  };
+}
+
+module.exports = overArg;
+
+},{}],"node_modules/lodash/_nativeKeys.js":[function(require,module,exports) {
+var overArg = require('./_overArg');
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeKeys = overArg(Object.keys, Object);
+
+module.exports = nativeKeys;
+
+},{"./_overArg":"node_modules/lodash/_overArg.js"}],"node_modules/lodash/_baseKeys.js":[function(require,module,exports) {
+var isPrototype = require('./_isPrototype'),
+    nativeKeys = require('./_nativeKeys');
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ */
+function baseKeys(object) {
+  if (!isPrototype(object)) {
+    return nativeKeys(object);
+  }
+  var result = [];
+  for (var key in Object(object)) {
+    if (hasOwnProperty.call(object, key) && key != 'constructor') {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+module.exports = baseKeys;
+
+},{"./_isPrototype":"node_modules/lodash/_isPrototype.js","./_nativeKeys":"node_modules/lodash/_nativeKeys.js"}],"node_modules/lodash/isObject.js":[function(require,module,exports) {
 /**
  * Checks if `value` is the
  * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
@@ -26287,44 +26746,7 @@ function isFunction(value) {
 
 module.exports = isFunction;
 
-},{"./_baseGetTag":"node_modules/lodash/_baseGetTag.js","./isObject":"node_modules/lodash/isObject.js"}],"node_modules/lodash/isLength.js":[function(require,module,exports) {
-/** Used as references for various `Number` constants. */
-var MAX_SAFE_INTEGER = 9007199254740991;
-
-/**
- * Checks if `value` is a valid array-like length.
- *
- * **Note:** This method is loosely based on
- * [`ToLength`](http://ecma-international.org/ecma-262/7.0/#sec-tolength).
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a valid length, else `false`.
- * @example
- *
- * _.isLength(3);
- * // => true
- *
- * _.isLength(Number.MIN_VALUE);
- * // => false
- *
- * _.isLength(Infinity);
- * // => false
- *
- * _.isLength('3');
- * // => false
- */
-function isLength(value) {
-  return typeof value == 'number' &&
-    value > -1 && value % 1 == 0 && value <= MAX_SAFE_INTEGER;
-}
-
-module.exports = isLength;
-
-},{}],"node_modules/lodash/isArrayLike.js":[function(require,module,exports) {
+},{"./_baseGetTag":"node_modules/lodash/_baseGetTag.js","./isObject":"node_modules/lodash/isObject.js"}],"node_modules/lodash/isArrayLike.js":[function(require,module,exports) {
 var isFunction = require('./isFunction'),
     isLength = require('./isLength');
 
@@ -26359,32 +26781,298 @@ function isArrayLike(value) {
 
 module.exports = isArrayLike;
 
-},{"./isFunction":"node_modules/lodash/isFunction.js","./isLength":"node_modules/lodash/isLength.js"}],"node_modules/lodash/_isIndex.js":[function(require,module,exports) {
-/** Used as references for various `Number` constants. */
-var MAX_SAFE_INTEGER = 9007199254740991;
-
-/** Used to detect unsigned integer values. */
-var reIsUint = /^(?:0|[1-9]\d*)$/;
+},{"./isFunction":"node_modules/lodash/isFunction.js","./isLength":"node_modules/lodash/isLength.js"}],"node_modules/lodash/keys.js":[function(require,module,exports) {
+var arrayLikeKeys = require('./_arrayLikeKeys'),
+    baseKeys = require('./_baseKeys'),
+    isArrayLike = require('./isArrayLike');
 
 /**
- * Checks if `value` is a valid array-like index.
+ * Creates an array of the own enumerable property names of `object`.
  *
- * @private
- * @param {*} value The value to check.
- * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
- * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ * **Note:** Non-object values are coerced to objects. See the
+ * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+ * for more details.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.keys(new Foo);
+ * // => ['a', 'b'] (iteration order is not guaranteed)
+ *
+ * _.keys('hi');
+ * // => ['0', '1']
  */
-function isIndex(value, length) {
-  var type = typeof value;
-  length = length == null ? MAX_SAFE_INTEGER : length;
-
-  return !!length &&
-    (type == 'number' ||
-      (type != 'symbol' && reIsUint.test(value))) &&
-        (value > -1 && value % 1 == 0 && value < length);
+function keys(object) {
+  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
 }
 
-module.exports = isIndex;
+module.exports = keys;
+
+},{"./_arrayLikeKeys":"node_modules/lodash/_arrayLikeKeys.js","./_baseKeys":"node_modules/lodash/_baseKeys.js","./isArrayLike":"node_modules/lodash/isArrayLike.js"}],"node_modules/lodash/values.js":[function(require,module,exports) {
+var baseValues = require('./_baseValues'),
+    keys = require('./keys');
+
+/**
+ * Creates an array of the own enumerable string keyed property values of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property values.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.values(new Foo);
+ * // => [1, 2] (iteration order is not guaranteed)
+ *
+ * _.values('hi');
+ * // => ['h', 'i']
+ */
+function values(object) {
+  return object == null ? [] : baseValues(object, keys(object));
+}
+
+module.exports = values;
+
+},{"./_baseValues":"node_modules/lodash/_baseValues.js","./keys":"node_modules/lodash/keys.js"}],"node_modules/lodash/_baseSample.js":[function(require,module,exports) {
+var arraySample = require('./_arraySample'),
+    values = require('./values');
+
+/**
+ * The base implementation of `_.sample`.
+ *
+ * @private
+ * @param {Array|Object} collection The collection to sample.
+ * @returns {*} Returns the random element.
+ */
+function baseSample(collection) {
+  return arraySample(values(collection));
+}
+
+module.exports = baseSample;
+
+},{"./_arraySample":"node_modules/lodash/_arraySample.js","./values":"node_modules/lodash/values.js"}],"node_modules/lodash/sample.js":[function(require,module,exports) {
+var arraySample = require('./_arraySample'),
+    baseSample = require('./_baseSample'),
+    isArray = require('./isArray');
+
+/**
+ * Gets a random element from `collection`.
+ *
+ * @static
+ * @memberOf _
+ * @since 2.0.0
+ * @category Collection
+ * @param {Array|Object} collection The collection to sample.
+ * @returns {*} Returns the random element.
+ * @example
+ *
+ * _.sample([1, 2, 3, 4]);
+ * // => 2
+ */
+function sample(collection) {
+  var func = isArray(collection) ? arraySample : baseSample;
+  return func(collection);
+}
+
+module.exports = sample;
+
+},{"./_arraySample":"node_modules/lodash/_arraySample.js","./_baseSample":"node_modules/lodash/_baseSample.js","./isArray":"node_modules/lodash/isArray.js"}],"src/helpers/useThanosDelay.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = require("react");
+
+var _constants = require("../constants");
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
+function useThanosDelay() {
+  var _useState = (0, _react.useState)(false),
+      _useState2 = _slicedToArray(_useState, 2),
+      show = _useState2[0],
+      setShow = _useState2[1];
+
+  (0, _react.useEffect)(function () {
+    setTimeout(function () {
+      return setShow(true);
+    }, _constants.THANOS_DURATION);
+  });
+  return show;
+}
+
+var _default = useThanosDelay;
+exports.default = _default;
+},{"react":"node_modules/react/index.js","../constants":"src/constants.js"}],"src/components/Status.css":[function(require,module,exports) {
+var reloadCSS = require('_css_loader');
+
+module.hot.dispose(reloadCSS);
+module.hot.accept(reloadCSS);
+module.exports = {
+  "wrapper": "_wrapper_6a4aa",
+  "status": "_status_6a4aa",
+  "text": "_text_6a4aa",
+  "reset": "_reset_6a4aa"
+};
+},{"../variables":"src/variables.css","_css_loader":"node_modules/parcel-bundler/src/builtins/css-loader.js"}],"src/components/Status.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireWildcard(require("react"));
+
+var _sample = _interopRequireDefault(require("lodash/sample"));
+
+var _constants = require("../constants");
+
+var _context = _interopRequireDefault(require("../context"));
+
+var _Status = _interopRequireDefault(require("./Status.css"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+var Status = function Status(_ref) {
+  var children = _ref.children,
+      title = _ref.title;
+  var dispatch = (0, _react.useContext)(_context.default);
+
+  var reset = function reset() {
+    return dispatch({
+      type: 'RESET'
+    });
+  };
+
+  return _react.default.createElement("div", {
+    className: _Status.default.wrapper
+  }, _react.default.createElement("span", {
+    className: _Status.default.status
+  }, title), _react.default.createElement("p", {
+    className: _Status.default.text
+  }, children), _react.default.createElement("button", {
+    type: "button",
+    onClick: reset,
+    className: _Status.default.reset
+  }, "".concat((0, _sample.default)(_constants.RESET_TEXT_OPTIONS), "...")));
+};
+
+var _default = Status;
+exports.default = _default;
+},{"react":"node_modules/react/index.js","lodash/sample":"node_modules/lodash/sample.js","../constants":"src/constants.js","../context":"src/context.js","./Status.css":"src/components/Status.css"}],"src/components/Alive.js":[function(require,module,exports) {
+var global = arguments[3];
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _react = _interopRequireDefault(require("react"));
+
+var _reactConfetti = _interopRequireDefault(require("react-confetti"));
+
+var _sample = _interopRequireDefault(require("lodash/sample"));
+
+var _constants = require("../constants");
+
+var _useThanosDelay = _interopRequireDefault(require("../helpers/useThanosDelay"));
+
+var _Status = _interopRequireDefault(require("./Status"));
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var Alive = function Alive() {
+  var show = (0, _useThanosDelay.default)();
+
+  var _global$document$docu = global.document.documentElement.getBoundingClientRect(),
+      width = _global$document$docu.width,
+      height = _global$document$docu.height;
+
+  return show && _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_reactConfetti.default, {
+    numberOfPieces: 300,
+    width: width,
+    height: height
+  }), _react.default.createElement(_Status.default, {
+    title: "ALIVE!"
+  }, (0, _sample.default)(_constants.ALIVE_TEXT_OPTIONS)));
+};
+
+var _default = Alive;
+exports.default = _default;
+},{"react":"node_modules/react/index.js","react-confetti":"node_modules/react-confetti/dist/react-confetti.min.js","lodash/sample":"node_modules/lodash/sample.js","../constants":"src/constants.js","../helpers/useThanosDelay":"src/helpers/useThanosDelay.js","./Status":"src/components/Status.js"}],"node_modules/lodash/eq.js":[function(require,module,exports) {
+/**
+ * Performs a
+ * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * comparison between two values to determine if they are equivalent.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to compare.
+ * @param {*} other The other value to compare.
+ * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+ * @example
+ *
+ * var object = { 'a': 1 };
+ * var other = { 'a': 1 };
+ *
+ * _.eq(object, object);
+ * // => true
+ *
+ * _.eq(object, other);
+ * // => false
+ *
+ * _.eq('a', 'a');
+ * // => true
+ *
+ * _.eq('a', Object('a'));
+ * // => false
+ *
+ * _.eq(NaN, NaN);
+ * // => true
+ */
+function eq(value, other) {
+  return value === other || (value !== value && other !== other);
+}
+
+module.exports = eq;
 
 },{}],"node_modules/lodash/_isIterateeCall.js":[function(require,module,exports) {
 var eq = require('./eq'),
@@ -26418,38 +27106,7 @@ function isIterateeCall(value, index, object) {
 
 module.exports = isIterateeCall;
 
-},{"./eq":"node_modules/lodash/eq.js","./isArrayLike":"node_modules/lodash/isArrayLike.js","./_isIndex":"node_modules/lodash/_isIndex.js","./isObject":"node_modules/lodash/isObject.js"}],"node_modules/lodash/isObjectLike.js":[function(require,module,exports) {
-/**
- * Checks if `value` is object-like. A value is object-like if it's not `null`
- * and has a `typeof` result of "object".
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
- * @example
- *
- * _.isObjectLike({});
- * // => true
- *
- * _.isObjectLike([1, 2, 3]);
- * // => true
- *
- * _.isObjectLike(_.noop);
- * // => false
- *
- * _.isObjectLike(null);
- * // => false
- */
-function isObjectLike(value) {
-  return value != null && typeof value == 'object';
-}
-
-module.exports = isObjectLike;
-
-},{}],"node_modules/lodash/isSymbol.js":[function(require,module,exports) {
+},{"./eq":"node_modules/lodash/eq.js","./isArrayLike":"node_modules/lodash/isArrayLike.js","./_isIndex":"node_modules/lodash/_isIndex.js","./isObject":"node_modules/lodash/isObject.js"}],"node_modules/lodash/isSymbol.js":[function(require,module,exports) {
 var baseGetTag = require('./_baseGetTag'),
     isObjectLike = require('./isObjectLike');
 
@@ -26748,482 +27405,7 @@ var baseFor = createBaseFor();
 
 module.exports = baseFor;
 
-},{"./_createBaseFor":"node_modules/lodash/_createBaseFor.js"}],"node_modules/lodash/_baseTimes.js":[function(require,module,exports) {
-/**
- * The base implementation of `_.times` without support for iteratee shorthands
- * or max array length checks.
- *
- * @private
- * @param {number} n The number of times to invoke `iteratee`.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array} Returns the array of results.
- */
-function baseTimes(n, iteratee) {
-  var index = -1,
-      result = Array(n);
-
-  while (++index < n) {
-    result[index] = iteratee(index);
-  }
-  return result;
-}
-
-module.exports = baseTimes;
-
-},{}],"node_modules/lodash/_baseIsArguments.js":[function(require,module,exports) {
-var baseGetTag = require('./_baseGetTag'),
-    isObjectLike = require('./isObjectLike');
-
-/** `Object#toString` result references. */
-var argsTag = '[object Arguments]';
-
-/**
- * The base implementation of `_.isArguments`.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an `arguments` object,
- */
-function baseIsArguments(value) {
-  return isObjectLike(value) && baseGetTag(value) == argsTag;
-}
-
-module.exports = baseIsArguments;
-
-},{"./_baseGetTag":"node_modules/lodash/_baseGetTag.js","./isObjectLike":"node_modules/lodash/isObjectLike.js"}],"node_modules/lodash/isArguments.js":[function(require,module,exports) {
-var baseIsArguments = require('./_baseIsArguments'),
-    isObjectLike = require('./isObjectLike');
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/** Built-in value references. */
-var propertyIsEnumerable = objectProto.propertyIsEnumerable;
-
-/**
- * Checks if `value` is likely an `arguments` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an `arguments` object,
- *  else `false`.
- * @example
- *
- * _.isArguments(function() { return arguments; }());
- * // => true
- *
- * _.isArguments([1, 2, 3]);
- * // => false
- */
-var isArguments = baseIsArguments(function() { return arguments; }()) ? baseIsArguments : function(value) {
-  return isObjectLike(value) && hasOwnProperty.call(value, 'callee') &&
-    !propertyIsEnumerable.call(value, 'callee');
-};
-
-module.exports = isArguments;
-
-},{"./_baseIsArguments":"node_modules/lodash/_baseIsArguments.js","./isObjectLike":"node_modules/lodash/isObjectLike.js"}],"node_modules/lodash/isArray.js":[function(require,module,exports) {
-/**
- * Checks if `value` is classified as an `Array` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an array, else `false`.
- * @example
- *
- * _.isArray([1, 2, 3]);
- * // => true
- *
- * _.isArray(document.body.children);
- * // => false
- *
- * _.isArray('abc');
- * // => false
- *
- * _.isArray(_.noop);
- * // => false
- */
-var isArray = Array.isArray;
-
-module.exports = isArray;
-
-},{}],"node_modules/lodash/stubFalse.js":[function(require,module,exports) {
-/**
- * This method returns `false`.
- *
- * @static
- * @memberOf _
- * @since 4.13.0
- * @category Util
- * @returns {boolean} Returns `false`.
- * @example
- *
- * _.times(2, _.stubFalse);
- * // => [false, false]
- */
-function stubFalse() {
-  return false;
-}
-
-module.exports = stubFalse;
-
-},{}],"node_modules/lodash/isBuffer.js":[function(require,module,exports) {
-
-var root = require('./_root'),
-    stubFalse = require('./stubFalse');
-
-/** Detect free variable `exports`. */
-var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
-
-/** Detect free variable `module`. */
-var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
-
-/** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports = freeModule && freeModule.exports === freeExports;
-
-/** Built-in value references. */
-var Buffer = moduleExports ? root.Buffer : undefined;
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
-
-/**
- * Checks if `value` is a buffer.
- *
- * @static
- * @memberOf _
- * @since 4.3.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
- * @example
- *
- * _.isBuffer(new Buffer(2));
- * // => true
- *
- * _.isBuffer(new Uint8Array(2));
- * // => false
- */
-var isBuffer = nativeIsBuffer || stubFalse;
-
-module.exports = isBuffer;
-
-},{"./_root":"node_modules/lodash/_root.js","./stubFalse":"node_modules/lodash/stubFalse.js"}],"node_modules/lodash/_baseIsTypedArray.js":[function(require,module,exports) {
-var baseGetTag = require('./_baseGetTag'),
-    isLength = require('./isLength'),
-    isObjectLike = require('./isObjectLike');
-
-/** `Object#toString` result references. */
-var argsTag = '[object Arguments]',
-    arrayTag = '[object Array]',
-    boolTag = '[object Boolean]',
-    dateTag = '[object Date]',
-    errorTag = '[object Error]',
-    funcTag = '[object Function]',
-    mapTag = '[object Map]',
-    numberTag = '[object Number]',
-    objectTag = '[object Object]',
-    regexpTag = '[object RegExp]',
-    setTag = '[object Set]',
-    stringTag = '[object String]',
-    weakMapTag = '[object WeakMap]';
-
-var arrayBufferTag = '[object ArrayBuffer]',
-    dataViewTag = '[object DataView]',
-    float32Tag = '[object Float32Array]',
-    float64Tag = '[object Float64Array]',
-    int8Tag = '[object Int8Array]',
-    int16Tag = '[object Int16Array]',
-    int32Tag = '[object Int32Array]',
-    uint8Tag = '[object Uint8Array]',
-    uint8ClampedTag = '[object Uint8ClampedArray]',
-    uint16Tag = '[object Uint16Array]',
-    uint32Tag = '[object Uint32Array]';
-
-/** Used to identify `toStringTag` values of typed arrays. */
-var typedArrayTags = {};
-typedArrayTags[float32Tag] = typedArrayTags[float64Tag] =
-typedArrayTags[int8Tag] = typedArrayTags[int16Tag] =
-typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] =
-typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
-typedArrayTags[uint32Tag] = true;
-typedArrayTags[argsTag] = typedArrayTags[arrayTag] =
-typedArrayTags[arrayBufferTag] = typedArrayTags[boolTag] =
-typedArrayTags[dataViewTag] = typedArrayTags[dateTag] =
-typedArrayTags[errorTag] = typedArrayTags[funcTag] =
-typedArrayTags[mapTag] = typedArrayTags[numberTag] =
-typedArrayTags[objectTag] = typedArrayTags[regexpTag] =
-typedArrayTags[setTag] = typedArrayTags[stringTag] =
-typedArrayTags[weakMapTag] = false;
-
-/**
- * The base implementation of `_.isTypedArray` without Node.js optimizations.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
- */
-function baseIsTypedArray(value) {
-  return isObjectLike(value) &&
-    isLength(value.length) && !!typedArrayTags[baseGetTag(value)];
-}
-
-module.exports = baseIsTypedArray;
-
-},{"./_baseGetTag":"node_modules/lodash/_baseGetTag.js","./isLength":"node_modules/lodash/isLength.js","./isObjectLike":"node_modules/lodash/isObjectLike.js"}],"node_modules/lodash/_baseUnary.js":[function(require,module,exports) {
-/**
- * The base implementation of `_.unary` without support for storing metadata.
- *
- * @private
- * @param {Function} func The function to cap arguments for.
- * @returns {Function} Returns the new capped function.
- */
-function baseUnary(func) {
-  return function(value) {
-    return func(value);
-  };
-}
-
-module.exports = baseUnary;
-
-},{}],"node_modules/lodash/_nodeUtil.js":[function(require,module,exports) {
-var freeGlobal = require('./_freeGlobal');
-
-/** Detect free variable `exports`. */
-var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
-
-/** Detect free variable `module`. */
-var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
-
-/** Detect the popular CommonJS extension `module.exports`. */
-var moduleExports = freeModule && freeModule.exports === freeExports;
-
-/** Detect free variable `process` from Node.js. */
-var freeProcess = moduleExports && freeGlobal.process;
-
-/** Used to access faster Node.js helpers. */
-var nodeUtil = (function() {
-  try {
-    // Use `util.types` for Node.js 10+.
-    var types = freeModule && freeModule.require && freeModule.require('util').types;
-
-    if (types) {
-      return types;
-    }
-
-    // Legacy `process.binding('util')` for Node.js < 10.
-    return freeProcess && freeProcess.binding && freeProcess.binding('util');
-  } catch (e) {}
-}());
-
-module.exports = nodeUtil;
-
-},{"./_freeGlobal":"node_modules/lodash/_freeGlobal.js"}],"node_modules/lodash/isTypedArray.js":[function(require,module,exports) {
-var baseIsTypedArray = require('./_baseIsTypedArray'),
-    baseUnary = require('./_baseUnary'),
-    nodeUtil = require('./_nodeUtil');
-
-/* Node.js helper references. */
-var nodeIsTypedArray = nodeUtil && nodeUtil.isTypedArray;
-
-/**
- * Checks if `value` is classified as a typed array.
- *
- * @static
- * @memberOf _
- * @since 3.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
- * @example
- *
- * _.isTypedArray(new Uint8Array);
- * // => true
- *
- * _.isTypedArray([]);
- * // => false
- */
-var isTypedArray = nodeIsTypedArray ? baseUnary(nodeIsTypedArray) : baseIsTypedArray;
-
-module.exports = isTypedArray;
-
-},{"./_baseIsTypedArray":"node_modules/lodash/_baseIsTypedArray.js","./_baseUnary":"node_modules/lodash/_baseUnary.js","./_nodeUtil":"node_modules/lodash/_nodeUtil.js"}],"node_modules/lodash/_arrayLikeKeys.js":[function(require,module,exports) {
-var baseTimes = require('./_baseTimes'),
-    isArguments = require('./isArguments'),
-    isArray = require('./isArray'),
-    isBuffer = require('./isBuffer'),
-    isIndex = require('./_isIndex'),
-    isTypedArray = require('./isTypedArray');
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/**
- * Creates an array of the enumerable property names of the array-like `value`.
- *
- * @private
- * @param {*} value The value to query.
- * @param {boolean} inherited Specify returning inherited property names.
- * @returns {Array} Returns the array of property names.
- */
-function arrayLikeKeys(value, inherited) {
-  var isArr = isArray(value),
-      isArg = !isArr && isArguments(value),
-      isBuff = !isArr && !isArg && isBuffer(value),
-      isType = !isArr && !isArg && !isBuff && isTypedArray(value),
-      skipIndexes = isArr || isArg || isBuff || isType,
-      result = skipIndexes ? baseTimes(value.length, String) : [],
-      length = result.length;
-
-  for (var key in value) {
-    if ((inherited || hasOwnProperty.call(value, key)) &&
-        !(skipIndexes && (
-           // Safari 9 has enumerable `arguments.length` in strict mode.
-           key == 'length' ||
-           // Node.js 0.10 has enumerable non-index properties on buffers.
-           (isBuff && (key == 'offset' || key == 'parent')) ||
-           // PhantomJS 2 has enumerable non-index properties on typed arrays.
-           (isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset')) ||
-           // Skip index properties.
-           isIndex(key, length)
-        ))) {
-      result.push(key);
-    }
-  }
-  return result;
-}
-
-module.exports = arrayLikeKeys;
-
-},{"./_baseTimes":"node_modules/lodash/_baseTimes.js","./isArguments":"node_modules/lodash/isArguments.js","./isArray":"node_modules/lodash/isArray.js","./isBuffer":"node_modules/lodash/isBuffer.js","./_isIndex":"node_modules/lodash/_isIndex.js","./isTypedArray":"node_modules/lodash/isTypedArray.js"}],"node_modules/lodash/_isPrototype.js":[function(require,module,exports) {
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/**
- * Checks if `value` is likely a prototype object.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
- */
-function isPrototype(value) {
-  var Ctor = value && value.constructor,
-      proto = (typeof Ctor == 'function' && Ctor.prototype) || objectProto;
-
-  return value === proto;
-}
-
-module.exports = isPrototype;
-
-},{}],"node_modules/lodash/_overArg.js":[function(require,module,exports) {
-/**
- * Creates a unary function that invokes `func` with its argument transformed.
- *
- * @private
- * @param {Function} func The function to wrap.
- * @param {Function} transform The argument transform.
- * @returns {Function} Returns the new function.
- */
-function overArg(func, transform) {
-  return function(arg) {
-    return func(transform(arg));
-  };
-}
-
-module.exports = overArg;
-
-},{}],"node_modules/lodash/_nativeKeys.js":[function(require,module,exports) {
-var overArg = require('./_overArg');
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var nativeKeys = overArg(Object.keys, Object);
-
-module.exports = nativeKeys;
-
-},{"./_overArg":"node_modules/lodash/_overArg.js"}],"node_modules/lodash/_baseKeys.js":[function(require,module,exports) {
-var isPrototype = require('./_isPrototype'),
-    nativeKeys = require('./_nativeKeys');
-
-/** Used for built-in method references. */
-var objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var hasOwnProperty = objectProto.hasOwnProperty;
-
-/**
- * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- */
-function baseKeys(object) {
-  if (!isPrototype(object)) {
-    return nativeKeys(object);
-  }
-  var result = [];
-  for (var key in Object(object)) {
-    if (hasOwnProperty.call(object, key) && key != 'constructor') {
-      result.push(key);
-    }
-  }
-  return result;
-}
-
-module.exports = baseKeys;
-
-},{"./_isPrototype":"node_modules/lodash/_isPrototype.js","./_nativeKeys":"node_modules/lodash/_nativeKeys.js"}],"node_modules/lodash/keys.js":[function(require,module,exports) {
-var arrayLikeKeys = require('./_arrayLikeKeys'),
-    baseKeys = require('./_baseKeys'),
-    isArrayLike = require('./isArrayLike');
-
-/**
- * Creates an array of the own enumerable property names of `object`.
- *
- * **Note:** Non-object values are coerced to objects. See the
- * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
- * for more details.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property names.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.keys(new Foo);
- * // => ['a', 'b'] (iteration order is not guaranteed)
- *
- * _.keys('hi');
- * // => ['0', '1']
- */
-function keys(object) {
-  return isArrayLike(object) ? arrayLikeKeys(object) : baseKeys(object);
-}
-
-module.exports = keys;
-
-},{"./_arrayLikeKeys":"node_modules/lodash/_arrayLikeKeys.js","./_baseKeys":"node_modules/lodash/_baseKeys.js","./isArrayLike":"node_modules/lodash/isArrayLike.js"}],"node_modules/lodash/_baseForOwn.js":[function(require,module,exports) {
+},{"./_createBaseFor":"node_modules/lodash/_createBaseFor.js"}],"node_modules/lodash/_baseForOwn.js":[function(require,module,exports) {
 var baseFor = require('./_baseFor'),
     keys = require('./keys');
 
@@ -29198,30 +29380,7 @@ var stringToPath = memoizeCapped(function(string) {
 
 module.exports = stringToPath;
 
-},{"./_memoizeCapped":"node_modules/lodash/_memoizeCapped.js"}],"node_modules/lodash/_arrayMap.js":[function(require,module,exports) {
-/**
- * A specialized version of `_.map` for arrays without support for iteratee
- * shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array} Returns the new mapped array.
- */
-function arrayMap(array, iteratee) {
-  var index = -1,
-      length = array == null ? 0 : array.length,
-      result = Array(length);
-
-  while (++index < length) {
-    result[index] = iteratee(array[index], index, array);
-  }
-  return result;
-}
-
-module.exports = arrayMap;
-
-},{}],"node_modules/lodash/_baseToString.js":[function(require,module,exports) {
+},{"./_memoizeCapped":"node_modules/lodash/_memoizeCapped.js"}],"node_modules/lodash/_baseToString.js":[function(require,module,exports) {
 var Symbol = require('./_Symbol'),
     arrayMap = require('./_arrayMap'),
     isArray = require('./isArray'),
@@ -29698,124 +29857,7 @@ function filter(collection, predicate) {
 
 module.exports = filter;
 
-},{"./_arrayFilter":"node_modules/lodash/_arrayFilter.js","./_baseFilter":"node_modules/lodash/_baseFilter.js","./_baseIteratee":"node_modules/lodash/_baseIteratee.js","./isArray":"node_modules/lodash/isArray.js"}],"node_modules/lodash/_arraySample.js":[function(require,module,exports) {
-var baseRandom = require('./_baseRandom');
-
-/**
- * A specialized version of `_.sample` for arrays.
- *
- * @private
- * @param {Array} array The array to sample.
- * @returns {*} Returns the random element.
- */
-function arraySample(array) {
-  var length = array.length;
-  return length ? array[baseRandom(0, length - 1)] : undefined;
-}
-
-module.exports = arraySample;
-
-},{"./_baseRandom":"node_modules/lodash/_baseRandom.js"}],"node_modules/lodash/_baseValues.js":[function(require,module,exports) {
-var arrayMap = require('./_arrayMap');
-
-/**
- * The base implementation of `_.values` and `_.valuesIn` which creates an
- * array of `object` property values corresponding to the property names
- * of `props`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Array} props The property names to get values for.
- * @returns {Object} Returns the array of property values.
- */
-function baseValues(object, props) {
-  return arrayMap(props, function(key) {
-    return object[key];
-  });
-}
-
-module.exports = baseValues;
-
-},{"./_arrayMap":"node_modules/lodash/_arrayMap.js"}],"node_modules/lodash/values.js":[function(require,module,exports) {
-var baseValues = require('./_baseValues'),
-    keys = require('./keys');
-
-/**
- * Creates an array of the own enumerable string keyed property values of `object`.
- *
- * **Note:** Non-object values are coerced to objects.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property values.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.values(new Foo);
- * // => [1, 2] (iteration order is not guaranteed)
- *
- * _.values('hi');
- * // => ['h', 'i']
- */
-function values(object) {
-  return object == null ? [] : baseValues(object, keys(object));
-}
-
-module.exports = values;
-
-},{"./_baseValues":"node_modules/lodash/_baseValues.js","./keys":"node_modules/lodash/keys.js"}],"node_modules/lodash/_baseSample.js":[function(require,module,exports) {
-var arraySample = require('./_arraySample'),
-    values = require('./values');
-
-/**
- * The base implementation of `_.sample`.
- *
- * @private
- * @param {Array|Object} collection The collection to sample.
- * @returns {*} Returns the random element.
- */
-function baseSample(collection) {
-  return arraySample(values(collection));
-}
-
-module.exports = baseSample;
-
-},{"./_arraySample":"node_modules/lodash/_arraySample.js","./values":"node_modules/lodash/values.js"}],"node_modules/lodash/sample.js":[function(require,module,exports) {
-var arraySample = require('./_arraySample'),
-    baseSample = require('./_baseSample'),
-    isArray = require('./isArray');
-
-/**
- * Gets a random element from `collection`.
- *
- * @static
- * @memberOf _
- * @since 2.0.0
- * @category Collection
- * @param {Array|Object} collection The collection to sample.
- * @returns {*} Returns the random element.
- * @example
- *
- * _.sample([1, 2, 3, 4]);
- * // => 2
- */
-function sample(collection) {
-  var func = isArray(collection) ? arraySample : baseSample;
-  return func(collection);
-}
-
-module.exports = sample;
-
-},{"./_arraySample":"node_modules/lodash/_arraySample.js","./_baseSample":"node_modules/lodash/_baseSample.js","./isArray":"node_modules/lodash/isArray.js"}],"src/components/Dissolve.css":[function(require,module,exports) {
+},{"./_arrayFilter":"node_modules/lodash/_arrayFilter.js","./_baseFilter":"node_modules/lodash/_baseFilter.js","./_baseIteratee":"node_modules/lodash/_baseIteratee.js","./isArray":"node_modules/lodash/isArray.js"}],"src/components/Dissolve.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -29935,9 +29977,13 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 
-var _react = _interopRequireWildcard(require("react"));
+var _react = _interopRequireDefault(require("react"));
 
-var _timings = require("../timings");
+var _sample = _interopRequireDefault(require("lodash/sample"));
+
+var _constants = require("../constants");
+
+var _useThanosDelay = _interopRequireDefault(require("../helpers/useThanosDelay"));
 
 var _Dissolve = _interopRequireDefault(require("./Dissolve"));
 
@@ -29945,38 +29991,16 @@ var _Status = _interopRequireDefault(require("./Status"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
-
-function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
-
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
-
-function _iterableToArrayLimit(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
-
-function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-
-var Dead = function Dead(_ref) {
-  var reset = _ref.reset;
-
-  var _useState = (0, _react.useState)(false),
-      _useState2 = _slicedToArray(_useState, 2),
-      show = _useState2[0],
-      setShow = _useState2[1];
-
-  (0, _react.useEffect)(function () {
-    setTimeout(function () {
-      return setShow(true);
-    }, _timings.THANOS_DURATION);
-  });
+var Dead = function Dead() {
+  var show = (0, _useThanosDelay.default)();
   return show && _react.default.createElement(_react.default.Fragment, null, _react.default.createElement(_Dissolve.default, null), _react.default.createElement(_Status.default, {
-    title: "DEAD!",
-    reset: reset
-  }, "Mr. Stark, I don't feel so good..."));
+    title: "DEAD!"
+  }, (0, _sample.default)(_constants.DEAD_TEXT_OPTIONS)));
 };
 
 var _default = Dead;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","../timings":"src/timings.js","./Dissolve":"src/components/Dissolve.js","./Status":"src/components/Status.js"}],"src/images/snap.png":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","lodash/sample":"node_modules/lodash/sample.js","../constants":"src/constants.js","../helpers/useThanosDelay":"src/helpers/useThanosDelay.js","./Dissolve":"src/components/Dissolve.js","./Status":"src/components/Status.js"}],"src/images/snap.png":[function(require,module,exports) {
 module.exports = "/snap.8e911f22.png";
 },{}],"src/components/Thanos.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
@@ -29999,7 +30023,7 @@ exports.default = void 0;
 
 var _react = _interopRequireDefault(require("react"));
 
-var _timings = require("../timings");
+var _constants = require("../constants");
 
 var _snap = _interopRequireDefault(require("../images/snap.png"));
 
@@ -30008,11 +30032,11 @@ var _Thanos = _interopRequireDefault(require("./Thanos.css"));
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var imgStyles = {
-  animationDuration: "".concat(_timings.THANOS_DURATION, "ms")
+  animationDuration: "".concat(_constants.THANOS_DURATION, "ms")
 };
 var snapStyles = {
-  animationDuration: "".concat(_timings.SNAP_DURATION, "ms"),
-  animationDelay: "".concat(_timings.SNAP_DELAY, "ms")
+  animationDuration: "".concat(_constants.SNAP_DURATION, "ms"),
+  animationDelay: "".concat(_constants.SNAP_DELAY, "ms")
 };
 
 var Thanos = function Thanos() {
@@ -30031,7 +30055,37 @@ var Thanos = function Thanos() {
 
 var _default = Thanos;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","../timings":"src/timings.js","../images/snap.png":"src/images/snap.png","./Thanos.css":"src/components/Thanos.css"}],"src/components/App.css":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","../constants":"src/constants.js","../images/snap.png":"src/images/snap.png","./Thanos.css":"src/components/Thanos.css"}],"src/reducer.js":[function(require,module,exports) {
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+
+var _constants = require("./constants");
+
+var reducer = function reducer(state, action) {
+  switch (action.type) {
+    case 'RESET':
+      return _constants.MODES.input;
+
+    case 'ALIVE':
+      return _constants.MODES.alive;
+
+    case 'DEAD':
+      return _constants.MODES.dead;
+
+    default:
+      return state;
+  }
+};
+
+var _default = reducer;
+exports.default = _default;
+},{"./constants":"src/constants.js"}],"src/images/galaxy.jpg":[function(require,module,exports) {
+module.exports = "/galaxy.100f543c.jpg";
+},{}],"src/components/App.css":[function(require,module,exports) {
 var reloadCSS = require('_css_loader');
 
 module.hot.dispose(reloadCSS);
@@ -30050,7 +30104,7 @@ exports.default = void 0;
 
 var _react = _interopRequireWildcard(require("react"));
 
-var _galaxy = _interopRequireDefault(require("../images/galaxy.jpg"));
+var _constants = require("../constants");
 
 var _Input = _interopRequireDefault(require("./Input"));
 
@@ -30059,6 +30113,12 @@ var _Alive = _interopRequireDefault(require("./Alive"));
 var _Dead = _interopRequireDefault(require("./Dead"));
 
 var _Thanos = _interopRequireDefault(require("./Thanos"));
+
+var _context = _interopRequireDefault(require("../context"));
+
+var _reducer = _interopRequireDefault(require("../reducer"));
+
+var _galaxy = _interopRequireDefault(require("../images/galaxy.jpg"));
 
 var _App = _interopRequireDefault(require("./App.css"));
 
@@ -30077,48 +30137,26 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 var bgStyles = {
   backgroundImage: "url('".concat(_galaxy.default, "')")
 };
-var MODES = {
-  input: 'input',
-  alive: 'alive',
-  dead: 'dead'
-};
 
 var App = function App() {
-  var _useState = (0, _react.useState)(MODES.input),
-      _useState2 = _slicedToArray(_useState, 2),
-      mode = _useState2[0],
-      setMode = _useState2[1];
+  var _useReducer = (0, _react.useReducer)(_reducer.default, _constants.MODES.input),
+      _useReducer2 = _slicedToArray(_useReducer, 2),
+      mode = _useReducer2[0],
+      dispatch = _useReducer2[1];
 
-  var setAlive = function setAlive() {
-    return setMode(MODES.alive);
-  };
-
-  var setDead = function setDead() {
-    return setMode(MODES.dead);
-  };
-
-  var setInput = function setInput() {
-    return setMode(MODES.input);
-  };
-
-  return _react.default.createElement("div", {
+  return _react.default.createElement(_context.default.Provider, {
+    value: dispatch
+  }, _react.default.createElement("div", {
     className: _App.default.app
   }, _react.default.createElement("div", {
     className: _App.default.bg,
     style: bgStyles
-  }), mode === MODES.input && _react.default.createElement(_Input.default, {
-    setAlive: setAlive,
-    setDead: setDead
-  }), mode !== MODES.input && _react.default.createElement(_Thanos.default, null), mode === MODES.alive && _react.default.createElement(_Alive.default, {
-    reset: setInput
-  }), mode === MODES.dead && _react.default.createElement(_Dead.default, {
-    reset: setInput
-  }));
+  }), mode === _constants.MODES.input && _react.default.createElement(_Input.default, null), mode !== _constants.MODES.input && _react.default.createElement(_Thanos.default, null), mode === _constants.MODES.alive && _react.default.createElement(_Alive.default, null), mode === _constants.MODES.dead && _react.default.createElement(_Dead.default, null)));
 };
 
 var _default = App;
 exports.default = _default;
-},{"react":"node_modules/react/index.js","../images/galaxy.jpg":"src/images/galaxy.jpg","./Input":"src/components/Input.js","./Alive":"src/components/Alive.js","./Dead":"src/components/Dead.js","./Thanos":"src/components/Thanos.js","./App.css":"src/components/App.css"}],"src/index.js":[function(require,module,exports) {
+},{"react":"node_modules/react/index.js","../constants":"src/constants.js","./Input":"src/components/Input.js","./Alive":"src/components/Alive.js","./Dead":"src/components/Dead.js","./Thanos":"src/components/Thanos.js","../context":"src/context.js","../reducer":"src/reducer.js","../images/galaxy.jpg":"src/images/galaxy.jpg","./App.css":"src/components/App.css"}],"src/index.js":[function(require,module,exports) {
 var global = arguments[3];
 "use strict";
 
@@ -30159,7 +30197,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53155" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "50619" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
