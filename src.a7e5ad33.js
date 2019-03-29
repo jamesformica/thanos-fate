@@ -307,7 +307,7 @@ var e=arguments[3];Object.defineProperty(exports,"__esModule",{value:!0}),export
 },{"react":"HdMw","lodash/random":"Pj0L","lodash/filter":"1/Kn","lodash/sample":"wLew","./Dissolve.css":"ElOV"}],"Splt":[function(require,module,exports) {
 "use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var e=s(require("react")),t=s(require("lodash/sample")),r=require("../constants"),u=s(require("../helpers/useThanosDelay")),l=s(require("./Dissolve")),a=s(require("./Status"));function s(e){return e&&e.__esModule?e:{default:e}}var d=function(){return(0,u.default)()&&e.default.createElement(e.default.Fragment,null,e.default.createElement(l.default,null),e.default.createElement(a.default,{title:"DEAD!"},(0,t.default)(r.DEAD_TEXT_OPTIONS)))},n=d;exports.default=n;
 },{"react":"HdMw","lodash/sample":"wLew","../constants":"p3SI","../helpers/useThanosDelay":"etuX","./Dissolve":"Tk6S","./Status":"4hqZ"}],"blDi":[function(require,module,exports) {
-module.exports="/snap.80ab0187.png";
+module.exports="/thanos-fate/snap.80ab0187.png";
 },{}],"xVT5":[function(require,module,exports) {
 module.exports={thanos:"_thanos_ed221",slideInOut:"_slideInOut_ed221",img:"_img_ed221",snap:"_snap_ed221"};
 },{}],"OHWS":[function(require,module,exports) {
@@ -315,7 +315,7 @@ module.exports={thanos:"_thanos_ed221",slideInOut:"_slideInOut_ed221",img:"_img_
 },{"react":"HdMw","../constants":"p3SI","../images/snap.png":"blDi","./Thanos.css":"xVT5"}],"RvVv":[function(require,module,exports) {
 "use strict";Object.defineProperty(exports,"__esModule",{value:!0}),exports.default=void 0;var e=require("./constants"),t=function(t,r){switch(r.type){case"RESET":return e.MODES.input;case"ALIVE":return e.MODES.alive;case"DEAD":return e.MODES.dead;default:return t}},r=t;exports.default=r;
 },{"./constants":"p3SI"}],"AheC":[function(require,module,exports) {
-module.exports="/galaxy.d3c38408.jpg";
+module.exports="/thanos-fate/galaxy.d3c38408.jpg";
 },{}],"vBiA":[function(require,module,exports) {
 module.exports={app:"_app_414ec",bg:"_bg_414ec"};
 },{}],"V6oR":[function(require,module,exports) {
@@ -324,4 +324,4 @@ module.exports={app:"_app_414ec",bg:"_bg_414ec"};
 var global = arguments[3];
 var e=arguments[3],r=n(require("react")),t=n(require("react-dom")),u=n(require("./components/App"));function n(e){return e&&e.__esModule?e:{default:e}}t.default.render(r.default.createElement(u.default,null),e.document.getElementById("root"));
 },{"react":"HdMw","react-dom":"X9zx","./components/App":"V6oR"}]},{},["H99C"], null)
-//# sourceMappingURL=/src.a7e5ad33.js.map
+//# sourceMappingURL=/thanos-fate/src.a7e5ad33.js.map
